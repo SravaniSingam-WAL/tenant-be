@@ -11,7 +11,7 @@ app.get("/", async (req, res) => {
     res.json("hello world");
 });
 
-app.post("/api/tenant", async (req, res) => {
+app.post("/api/tenant", authentication, async (req, res) => {
     const {email,password,brandName,options} =req.body
     console.log(email,password,brandName,options)
     try {
@@ -35,7 +35,7 @@ app.post("/api/tenant", async (req, res) => {
         });
     }
 });
-app.get("/api/tenants", async (req, res) => {
+app.get("/api/tenants", authentication, async (req, res) => {
     try {
         
        const result = await models.Tenant.findAll({attributes:['brandName','email']})
@@ -51,7 +51,7 @@ app.get("/api/tenants", async (req, res) => {
         });
     }
 });
-app.get("/api/tenant/:tenantId/permissions", async (req, res) => {
+app.get("/api/tenant/:tenantId/permissions", authentication, async (req, res) => {
     try {
         const { tenantId } = req.params;
        const result = await models.Permissions.findAll({attributes:['appName','isAccess'],where:{tenantId}})
@@ -68,7 +68,7 @@ app.get("/api/tenant/:tenantId/permissions", async (req, res) => {
     }
 });
 
-app.post("/api/login", async (req, res) => {
+app.post("/api/login",async (req, res) => {
     const secretToken = "secret_token";
     const expireTime = Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 7;
     const { username, password } = req.body;
@@ -87,7 +87,7 @@ app.post("/api/login", async (req, res) => {
                 {
                     id: username,
                     exp: expireTime,
-                    brandName: user.brandName,
+                    tenantId: user.id
                 },
                 secretToken
             );
@@ -96,7 +96,8 @@ app.post("/api/login", async (req, res) => {
                 user: {
                     email: username,
                     token: token,
-                    tenantId:user.id
+                    tenantId:user.id,
+                    brandName: user.brandName,     
                 },
             });
         } else {
