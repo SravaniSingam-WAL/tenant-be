@@ -3,10 +3,12 @@ module.exports = (sequelize, DataTypes) => {
     const Tenant = sequelize.define(
         'Tenant',
         {
-            email: DataTypes.STRING,
-            password: DataTypes.STRING,
-            brandName: DataTypes.STRING,
-            userRole: DataTypes.STRING
+            userId: DataTypes.INTEGER,
+            name: DataTypes.STRING,
+            description: DataTypes.STRING,
+            stripePublicKey: DataTypes.STRING,
+            stripeSecretKey: DataTypes.STRING,
+            webUrl: DataTypes.STRING
         },
         {
             defaultScope: {

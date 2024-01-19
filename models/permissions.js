@@ -3,10 +3,10 @@ module.exports = (sequelize, DataTypes) => {
     const Permissions = sequelize.define(
         'Permissions',
         {
-            appName: DataTypes.STRING,
-            tenantId: DataTypes.INTEGER,
+            userId: DataTypes.INTEGER,
+            applicationId: DataTypes.INTEGER,
             isAccess: DataTypes.BOOLEAN
-        },
+         },
         {
             defaultScope: {
                 order: null
@@ -16,6 +16,10 @@ module.exports = (sequelize, DataTypes) => {
         }
     )
     Permissions.associate = function (models) {
-    }
+        Permissions.belongsTo(models.Application, {
+            foreignKey: 'applicationId',
+            targetKey: 'id',
+            as: 'application',
+        });}
     return Permissions
 }

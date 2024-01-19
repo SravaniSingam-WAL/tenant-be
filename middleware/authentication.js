@@ -8,13 +8,13 @@ async function authentication(req,res,next){
             console.log(receivedToken)
             const decodedToken = jwt.verify(receivedToken, "secret_token")
             console.log(decodedToken)
-            const tenant = await models.Tenant.findOne({
+            const user = await models.User.findOne({
                 where:{
                     id:decodedToken.tenantId
                 }
             })
-            console.log('Tenant : ',tenant)
-            if(tenant){
+            console.log('Tenant : ',user)
+            if(user){
                 req.currentUser=1
                 next()
             }
