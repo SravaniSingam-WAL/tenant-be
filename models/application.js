@@ -4,6 +4,7 @@ module.exports = (sequelize, DataTypes) => {
         'Application',
         {
             name: DataTypes.STRING,
+            url: DataTypes.STRING,
         },
         {
             defaultScope: {

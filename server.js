@@ -89,7 +89,7 @@ app.get("/api/tenants", authentication, async (req, res) => {
       {
         model: models.Application,
         as: 'application',
-        attributes:['name'],
+        attributes:['name','url'],
         required: true,
       }],
     }
@@ -121,7 +121,7 @@ app.get("/api/tenant/:id", authentication, async (req, res) => {
       {
         model: models.Application,
         as: 'application',
-        attributes:['name'],
+        attributes:['name','url'],
         required: true,
       }],
     }
@@ -156,7 +156,7 @@ app.get( "/api/tenant/:tenantId/permissions", authentication, async (req, res) =
           {
             model: models.Application,
             as: 'application',
-            attributes:['name'],
+            attributes:['name','url'],
             required: true,
           },
         ],
