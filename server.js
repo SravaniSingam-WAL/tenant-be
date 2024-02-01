@@ -12,10 +12,10 @@ app.get("/", async (req, res) => {
 });
 
 app.post("/api/tenant", authentication, async (req, res) => {
-  const { email, password, brandName, options } = req.body;
+  const { email, name,password, brandName, options } = req.body;
   console.log(email, password, brandName, options);
   try {
-    const user = await models.User.create({ userName: email, password });
+    const user = await models.User.create({ userName: email, password,name });
     const userRole = await models.UserRole.create({roleId:2,userId:user.id})
     console.log(userRole,'user role details')
     if (user) {
@@ -47,10 +47,10 @@ app.post("/api/tenant", authentication, async (req, res) => {
 });
 app.put("/api/tenant/:id", authentication, async (req, res) => {
   const { id } = req.params;  
-  const { email, password, brandName, options } = req.body;
+  const { email,name, password, brandName, options } = req.body;
   console.log(email, password, brandName, options);
   try {
-    const user = await models.User.update({ userName: email,brandName},{where:{id}});
+    const user = await models.User.update({ userName: email,brandName,name},{where:{id}});
     if (user) {
       console.log(options);
       for (const [key, value] of Object.entries(options)) {
@@ -216,6 +216,7 @@ app.post("/api/login", async (req, res) => {
         success: true,
         user: {
           email: username,
+          name:user.name,
           token: token,
           tenantId: user.id,
           brandName: user.brandName,
