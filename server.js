@@ -74,7 +74,7 @@ app.get(
           {
             model: models.Application,
             as: 'application',
-            attributes:['name'],
+            attributes:['name', 'url'],
             required: true,
           },
         ],
