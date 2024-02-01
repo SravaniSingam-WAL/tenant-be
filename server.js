@@ -156,7 +156,7 @@ app.get( "/api/tenant/:tenantId/permissions", authentication, async (req, res) =
           {
             model: models.Application,
             as: 'application',
-            attributes:['name','url'],
+            attributes:['name', 'url'],
             required: true,
           },
         ],
