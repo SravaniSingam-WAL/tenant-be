@@ -4,28 +4,29 @@ const  models  = require("../models");
 async function authentication(req,res,next){
     const receivedToken = req.headers.authorization
     try{
+        console.log('Authorization started')
         if(receivedToken){
-            console.log(receivedToken)
             const decodedToken = jwt.verify(receivedToken, "secret_token")
-            console.log(decodedToken)
             const user = await models.User.findOne({
                 where:{
                     id:decodedToken.tenantId
                 }
             })
-            console.log('Tenant : ',user)
             if(user){
                 req.currentUser=1
+                console.log('Authorization is done')
                 next()
             }
             else{
+                console.log('Authorization started')
+
                 res.status(401).json({
-                    message: 'Tenant not found'
+                    message: 'Tenant not found 1'
                 })       
             }
         }else {
             res.status(401).json({
-                message: 'Token not found'
+                message: 'Token not found 443'
             })
         }
     }

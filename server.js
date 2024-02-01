@@ -16,6 +16,8 @@ app.post("/api/tenant", authentication, async (req, res) => {
   console.log(email, password, brandName, options);
   try {
     const user = await models.User.create({ userName: email, password });
+    const userRole = await models.UserRole.create({roleId:2,userId:user.id})
+    console.log(userRole,'user role details')
     if (user) {
       console.log(options);
       for (const [key, value] of Object.entries(options)) {
@@ -43,9 +45,56 @@ app.post("/api/tenant", authentication, async (req, res) => {
     });
   }
 });
+app.put("/api/tenant/:id", authentication, async (req, res) => {
+  const { id } = req.params;  
+  const { email, password, brandName, options } = req.body;
+  console.log(email, password, brandName, options);
+  try {
+    const user = await models.User.update({ userName: email,brandName},{where:{id}});
+    if (user) {
+      console.log(options);
+      for (const [key, value] of Object.entries(options)) {
+        console.log(key, "value", value);
+        console.log(user.id,'userId')
+        const applicationId = await models.Application.findOne({
+          where: { name: key },
+        });
+        console.log(applicationId.id,'applicationId')
+        await models.Permissions.update({
+          isAccess: value,
+        },{where:{userId:id,applicationId:applicationId.id}});
+      }
+    }
+    res.status(200).json({
+      success: true,
+      data: "Successfully Updated Tenant",
+    });
+  } catch (error) {
+    console.log(error)
+    res.status(401).json({
+      success: false,
+      message: error,
+    });
+  }
+});
+
 app.get("/api/tenants", authentication, async (req, res) => {
   try {
-    const result = await models.User.findAll();
+    const result = await models.User.findAll( {include: [
+      {
+        model : models.Permissions,
+        attributes: ["isAccess"],
+        as:'permissions',
+      include:[
+      {
+        model: models.Application,
+        as: 'application',
+        attributes:['name','url'],
+        required: true,
+      }],
+    }
+    ],}
+ );
     res.status(200).json({
       success: true,
       data: result,
@@ -57,10 +106,43 @@ app.get("/api/tenants", authentication, async (req, res) => {
     });
   }
 });
-app.get(
-  "/api/tenant/:tenantId/permissions",
-  authentication,
-  async (req, res) => {
+app.get("/api/tenant/:id", authentication, async (req, res) => {
+  try {
+    console.log('api is started')
+    const { id } = req.params;  
+  console.log('api is reading id',id)
+    const result = await models.User.findOne({where : {id},
+    include: [
+      {
+        model : models.Permissions,
+        attributes: ["isAccess"],
+        as:'permissions',
+      include:[
+      {
+        model: models.Application,
+        as: 'application',
+        attributes:['name','url'],
+        required: true,
+      }],
+    }
+    ],
+ });
+ console.log(result,'result')
+ 
+    res.status(200).json({
+      success: true,
+      data: result,
+    });
+  } catch (error) {
+    console.log(error)
+    res.status(401).json({
+      success: false,
+      message: error,
+    });
+  }
+});
+
+app.get( "/api/tenant/:tenantId/permissions", authentication, async (req, res) => {
     try {
       const { tenantId } = req.params;
       console.log('=============================== Resutl')
@@ -107,9 +189,20 @@ app.post("/api/login", async (req, res) => {
         userName: username,
         password: password,
       },
+      include: [
+        {
+          model: models.UserRole,
+          required: true,  
+        },
+      ],
+    
     });
     if (user) {
-      console.log("user brandName", user);
+      console.log("user Roel", user);
+      console.log("user data", user.UserRoles)
+      console.log("detail;s",user.UserRoles[0]);
+      console.log("detail;s",user.UserRoles[0].id);
+  
       console.log("user brandName", user.brandName);
       const token = jwt.sign(
         {
@@ -126,6 +219,7 @@ app.post("/api/login", async (req, res) => {
           token: token,
           tenantId: user.id,
           brandName: user.brandName,
+          roleId: user.UserRoles[0].id
         },
       });
     } else {
@@ -135,6 +229,7 @@ app.post("/api/login", async (req, res) => {
       });
     }
   } catch (error) {
+    console.log(error)
     res.status(401).json({
       success: false,
       message: "Invalid username or password",
